@@ -1,10 +1,19 @@
 const express = require('express');
 const router = express.Router();
+const decodeToken = require('./../middlewares/decodeToken');
 
-const { createTask, updateTask, assignTaskToUser } = require('../controllers/taskController');
+const { allTasks, singleTask, createTask, updateTask, assignTaskToUser } = require('../controllers/taskController');
 
 router
-    .post('/', createTask)
-    .patch('/', updateTask)
+    .route('/')
+    .get(allTasks)
+    .post(createTask)
+
+router
+    .route('/:id')
+    .get(singleTask)
+    .patch(decodeToken, updateTask)
+
+// .patch('/', updateTask)
 
 module.exports = router;

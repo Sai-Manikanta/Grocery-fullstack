@@ -1,6 +1,46 @@
 const Task = require('./../models/task');
 
-const createTask = async (req, res, next) => {
+const allTasks = async (req, res) => {
+    try {
+        const tasks = await Task.find();
+
+        res.status(200).json({
+            status: 'success',
+            message: 'All tasks successfully fetched',
+            data: {
+                tasks
+            }
+        })
+    } catch (err) {
+        res.status(400).json({
+            status: 'failed',
+            message: err.message,
+            data: {}
+        })
+    }
+}
+
+const singleTask = async (req, res) => {
+    try {
+        const task = await Task.findById(req.params.id);
+
+        res.status(200).json({
+            status: 'success',
+            message: 'All tasks successfully fetched',
+            data: {
+                task
+            }
+        })
+    } catch (err) {
+        res.status(400).json({
+            status: 'failed',
+            message: err.message,
+            data: {}
+        })
+    }
+}
+
+const createTask = async (req, res) => {
     try {
         if (req?.headers?.user?.role !== 'admin') {
             return res.status(400).json({
@@ -30,9 +70,18 @@ const createTask = async (req, res, next) => {
     }
 }
 
-const updateTask = async (req, res, next) => {
+const updateTask = async (req, res) => {
     try {
-        const updatedTask = await Task.findByIdAndUpdate(req?.body?._id, req?.body, { new: true });
+        if (req.user.role !== 'admin') {
+            return res.status(401).json({
+                status: 'failed',
+                message: 'You are not a authorized person to do this action',
+                data: {}
+            })
+        }
+        // console.log(req.user.role);
+
+        const updatedTask = await Task.findByIdAndUpdate(req.params.id, req.body, { new: true });
 
         res.status(200).json({
             status: 'success',
@@ -50,5 +99,7 @@ const updateTask = async (req, res, next) => {
 
 module.exports = {
     createTask,
-    updateTask
+    updateTask,
+    allTasks,
+    singleTask
 }
